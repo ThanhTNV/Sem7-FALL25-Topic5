@@ -11,11 +11,11 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
 {
     public ApplicationDbContext()
     {
-        
+
     }
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
-        
+
     }
     public DbSet<DomainUser> DomainUsers { get; set; }
     private static string ConnectionString()
@@ -37,7 +37,6 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        base.OnConfiguring(optionsBuilder);
         if (!optionsBuilder.IsConfigured)
         {
             optionsBuilder.UseSqlServer(ConnectionString(), options =>
@@ -75,26 +74,15 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
                 }
                 ctx.SaveChanges();
             });
+        base.OnConfiguring(optionsBuilder);
     }
 
     public override int SaveChanges()
     {
-        var entries = ChangeTracker.Entries().Where(e => e.State == EntityState.Added || e.State == EntityState.Modified);
+        var entries = ChangeTracker.Entries();
         foreach (var entry in entries)
         {
-            if (entry.Entity is IdentityUser user && entry.State == EntityState.Added)
-            {
-                var userId = user.Id;
-                var userRole = Roles.FirstOrDefault(r => r.Name == "User");
-                var roleId = userRole!.Id;
-                UserRoles.Add(new IdentityUserRole<string>
-                {
-                    UserId = userId,
-                    RoleId = roleId // Assigning default role, you can modify this logic as needed
-                });
-            }
-
-            if (entry.Entity is BaseEntity)
+            if (entry.Entity is BaseEntity && (entry.State == EntityState.Added || entry.State == EntityState.Modified))
             {
                 var entity = entry.Entity as BaseEntity;
                 if (entry.State == EntityState.Added)
@@ -113,22 +101,10 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        var entries = ChangeTracker.Entries()
-            .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified);
+        var entries = ChangeTracker.Entries();
         foreach (var entry in entries)
         {
-            if (entry.Entity is IdentityUser user && entry.State == EntityState.Added)
-            {
-                var userId = user.Id;
-                var userRole = await Roles.FirstOrDefaultAsync(r => r.Name == "User", cancellationToken);
-                var roleId = userRole!.Id;
-                await UserRoles.AddAsync(new IdentityUserRole<string>
-                {
-                    UserId = userId,
-                    RoleId = roleId // Assigning default role, you can modify this logic as needed
-                }, cancellationToken);
-            }
-            if (entry.Entity is BaseEntity)
+            if (entry.Entity is BaseEntity && (entry.State == EntityState.Added || entry.State == EntityState.Modified))
             {
                 var entity = entry.Entity as BaseEntity;
                 if (entry.State == EntityState.Added)
@@ -142,6 +118,6 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
                 }
             }
         }
-        return await SaveChangesAsync(cancellationToken);
+        return await base.SaveChangesAsync(cancellationToken);
     }
 }

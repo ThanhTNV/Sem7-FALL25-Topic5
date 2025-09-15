@@ -35,6 +35,7 @@ public class Program
         builder.Services.AddCustomIdentity();
         builder.Services.AddCustomAuthentication(builder.Configuration);
         builder.Services.AddCustomAuthorization();
+        builder.Services.AddOpenApiWithJwtBearer();
 
         var app = builder.Build();
         // Configure the HTTP request pipeline.

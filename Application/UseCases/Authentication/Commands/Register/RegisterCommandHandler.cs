@@ -2,10 +2,12 @@
 using Domain.Entities.Implement;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace Application.UseCases.Authentication.Commands.Register;
 
-public class RegisterCommandHandler(UserManager<IdentityUser> userManager, IUnitOfWork Uow) : IRequestHandler<RegisterCommand>
+public class RegisterCommandHandler(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IUnitOfWork Uow) : IRequestHandler<RegisterCommand>
 {
     public async Task Handle(RegisterCommand request, CancellationToken cancellationToken)
     {
@@ -24,6 +26,7 @@ public class RegisterCommandHandler(UserManager<IdentityUser> userManager, IUnit
         {
             throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
         }
+        await userManager.AddToRoleAsync(user, "User");
         try
         {
             var domainUser = Uow.Repository<DomainUser>().AddAsync(new DomainUser
@@ -34,6 +37,7 @@ public class RegisterCommandHandler(UserManager<IdentityUser> userManager, IUnit
         } catch (Exception ex)
         {
             // If saving to the domain user table fails, delete the created IdentityUser to maintain consistency
+            await userManager.RemoveFromRoleAsync(user, "User");
             await userManager.DeleteAsync(user);
             throw new Exception("Registration failed. Please try again.", ex);
         }

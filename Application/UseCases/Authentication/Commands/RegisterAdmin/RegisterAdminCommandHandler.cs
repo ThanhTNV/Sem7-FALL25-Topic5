@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Application.UseCases.Authentication.Commands.RegisterAdmin;
 
-public class RegisterAdminCommandHandler(UserManager<IdentityUser> userManager, RoleManager<IdentityRole<Guid>> roleManager, IUnitOfWork UoW) : IRequestHandler<RegisterAdminCommand>
+public class RegisterAdminCommandHandler(UserManager<IdentityUser> userManager, IUnitOfWork UoW) : IRequestHandler<RegisterAdminCommand>
 {
     public async Task Handle(RegisterAdminCommand request, CancellationToken cancellationToken)
     {
