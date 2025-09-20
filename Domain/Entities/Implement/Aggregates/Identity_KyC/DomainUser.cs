@@ -7,6 +7,5 @@ public class DomainUser : BaseEntity
     public string IdentityUserId { get; set; } = null!;
 
     public Guid RenterId { get; set; }
-    public virtual Renter? Renter { get; set; }
     public virtual IEnumerable<VerificationAudit>? VerificationAudits { get; set; }
 }
