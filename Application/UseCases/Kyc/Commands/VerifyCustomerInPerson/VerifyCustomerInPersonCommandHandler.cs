@@ -1,7 +1,6 @@
-﻿using Application.UseCases.Kyc.Commands.VerifyCustomerInPerson;
-using MediatR;
+﻿using MediatR;
 
-namespace Application.UseCases.Kyc.Commands.VerifyDocument;
+namespace Application.UseCases.Kyc.Commands.VerifyCustomerInPerson;
 
 public class VerifyCustomerInPersonCommandHandler : IRequestHandler<VerifyCustomerInPersonCommand, bool>
 {
