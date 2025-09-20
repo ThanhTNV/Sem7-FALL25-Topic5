@@ -1,5 +1,5 @@
 ﻿using Domain.Entities.Abstract;
-using Domain.Entities.Implement;
+using Domain.Entities.Implement.Aggregates.Identity_KyC;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +18,10 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
 
     }
     public DbSet<DomainUser> DomainUsers { get; set; }
+    public DbSet<Renter> Renters { get; set; }
+    public DbSet<VerificationAudit> KycReviews { get; set; }
+    public DbSet<Document> KycDocuments { get; set; }
+
     private static string ConnectionString()
     {
         var configuration = new ConfigurationBuilder()
@@ -51,7 +55,7 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
         optionsBuilder
             .UseAsyncSeeding(async (ctx, _, cancellationToken) =>
             {
-                var roles = new[] { "Admin", "User" };
+                var roles = new[] { "Admin", "Staff", "User" };
                 foreach (var role in roles)
                 {
                     if (!await ctx.Set<IdentityRole>().AnyAsync(r => r.Name == role, cancellationToken))
@@ -64,7 +68,7 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
             })
             .UseSeeding((ctx, _) =>
             {
-                var roles = new[] { "Admin", "User" };
+                var roles = new[] { "Admin", "Staff", "User" };
                 foreach (var role in roles)
                 {
                     if (!ctx.Set<IdentityRole>().Any(r => r.Name == role))

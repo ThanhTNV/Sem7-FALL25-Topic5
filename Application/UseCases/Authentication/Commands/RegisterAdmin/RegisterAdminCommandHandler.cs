@@ -1,5 +1,5 @@
 ﻿using Application.Interfaces;
-using Domain.Entities.Implement;
+using Domain.Entities.Implement.Aggregates.Identity_KyC;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 
