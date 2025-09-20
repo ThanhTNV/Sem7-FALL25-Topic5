@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Domain.Entities.Implement;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.AspNetCore.Identity;
+using Domain.Entities.Implement.Aggregates.Identity_KyC;
 
 namespace Persistence.EntityConfigurations;
 

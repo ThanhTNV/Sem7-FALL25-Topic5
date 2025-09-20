@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Persistence;
 
@@ -11,9 +12,11 @@ using Persistence;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250920062036_ModifyDocumentFK")]
+    partial class ModifyDocumentFK
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -31,8 +34,9 @@ namespace Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("BackImageId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("BackUri")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -46,8 +50,9 @@ namespace Persistence.Migrations
                     b.Property<int>("DocumentType")
                         .HasColumnType("int");
 
-                    b.Property<Guid?>("FrontImageId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("FrontUri")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -67,14 +72,6 @@ namespace Persistence.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BackImageId")
-                        .IsUnique()
-                        .HasFilter("[BackImageId] IS NOT NULL");
-
-                    b.HasIndex("FrontImageId")
-                        .IsUnique()
-                        .HasFilter("[FrontImageId] IS NOT NULL");
 
                     b.HasIndex("RenterId");
 
@@ -114,6 +111,47 @@ namespace Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("DomainUser", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.Implement.Aggregates.Identity_KyC.KycReview", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsVerified")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<Guid>("RenterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ReviewerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RenterId");
+
+                    b.HasIndex("ReviewerId");
+
+                    b.ToTable("KycReview", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Implement.Aggregates.Identity_KyC.Renter", b =>
@@ -156,79 +194,6 @@ namespace Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("Renter", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.Entities.Implement.Aggregates.Identity_KyC.VerificationAudit", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsVerified")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Notes")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<Guid>("RenterId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ReviewerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RenterId");
-
-                    b.HasIndex("ReviewerId");
-
-                    b.ToTable("VerificationAudit", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.Entities.Implement.DomainBlob", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("BlobName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("ContainerName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("DomainBlob", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -431,16 +396,6 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.Implement.Aggregates.Identity_KyC.Document", b =>
                 {
-                    b.HasOne("Domain.Entities.Implement.DomainBlob", "BackImage")
-                        .WithOne()
-                        .HasForeignKey("Domain.Entities.Implement.Aggregates.Identity_KyC.Document", "BackImageId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("Domain.Entities.Implement.DomainBlob", "FrontImage")
-                        .WithOne()
-                        .HasForeignKey("Domain.Entities.Implement.Aggregates.Identity_KyC.Document", "FrontImageId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
                     b.HasOne("Domain.Entities.Implement.Aggregates.Identity_KyC.Renter", null)
                         .WithMany("Documents")
                         .HasForeignKey("RenterId")
@@ -452,10 +407,6 @@ namespace Persistence.Migrations
                         .HasForeignKey("RenterId1")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("BackImage");
-
-                    b.Navigation("FrontImage");
 
                     b.Navigation("Renter");
                 });
@@ -469,6 +420,25 @@ namespace Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Domain.Entities.Implement.Aggregates.Identity_KyC.KycReview", b =>
+                {
+                    b.HasOne("Domain.Entities.Implement.Aggregates.Identity_KyC.Renter", "Renter")
+                        .WithMany("KycReviews")
+                        .HasForeignKey("RenterId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Implement.Aggregates.Identity_KyC.DomainUser", "Reviewer")
+                        .WithMany("KycReviews")
+                        .HasForeignKey("ReviewerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Renter");
+
+                    b.Navigation("Reviewer");
+                });
+
             modelBuilder.Entity("Domain.Entities.Implement.Aggregates.Identity_KyC.Renter", b =>
                 {
                     b.HasOne("Domain.Entities.Implement.Aggregates.Identity_KyC.DomainUser", "User")
@@ -478,25 +448,6 @@ namespace Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Implement.Aggregates.Identity_KyC.VerificationAudit", b =>
-                {
-                    b.HasOne("Domain.Entities.Implement.Aggregates.Identity_KyC.Renter", "Renter")
-                        .WithMany("VerificationAudits")
-                        .HasForeignKey("RenterId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.Implement.Aggregates.Identity_KyC.DomainUser", "Reviewer")
-                        .WithMany("VerificationAudits")
-                        .HasForeignKey("ReviewerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Renter");
-
-                    b.Navigation("Reviewer");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -552,16 +503,16 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.Implement.Aggregates.Identity_KyC.DomainUser", b =>
                 {
-                    b.Navigation("Renter");
+                    b.Navigation("KycReviews");
 
-                    b.Navigation("VerificationAudits");
+                    b.Navigation("Renter");
                 });
 
             modelBuilder.Entity("Domain.Entities.Implement.Aggregates.Identity_KyC.Renter", b =>
                 {
                     b.Navigation("Documents");
 
-                    b.Navigation("VerificationAudits");
+                    b.Navigation("KycReviews");
                 });
 #pragma warning restore 612, 618
         }

@@ -53,7 +53,7 @@ app.Run();
 using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    foreach (var name in new[] { "Admin", "User" })
+    foreach (var name in new[] { "Admin", "Staff", "User" })
     {
         if (!await roleManager.RoleExistsAsync(name))
             await roleManager.CreateAsync(new IdentityRole { Name = name, NormalizedName = name.ToUpperInvariant() });
